@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UniUyo Semester Exam - Set 1</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        uyo: {
+                            primary: '#064e3b',   /* Emerald 900 */
+                            secondary: '#f59e0b', /* Amber 500 */
+                            accent: '#10b981',    /* Emerald 500 */
+                            bg: '#f0fdf4',        /* Light Green Bg */
+                            text: '#022c22',      /* Dark Green Text */
+                            danger: '#dc2626'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;500;600&display=swap');
+        
+        body { font-family: 'Inter', sans-serif; background-color: #f0fdf4; color: #022c22; }
+        h1, h2, h3 { font-family: 'Merriweather', serif; }
+
+        .auth-gradient { background: linear-gradient(135deg, #064e3b 0%, #065f46 100%); }
+
+        .btn-uyo {
+            background-color: #064e3b;
+            color: white;
+            transition: all 0.2s;
+            border-bottom: 4px solid #022c22;
+        }
+        .btn-uyo:hover { background-color: #047857; transform: translateY(-1px); }
+        .btn-uyo:active { border-bottom: 0px; transform: translateY(4px); }
+
+        .option-card {
+            border: 2px solid #d1fae5;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            background: white;
+        }
+        .option-card:hover { border-color: #f59e0b; background-color: #fffbeb; }
+        .option-card.selected { border-color: #064e3b; background-color: #d1fae5; font-weight: 600; }
+        
+        /* Grid Item Styles */
+        .grid-item { cursor: pointer; transition: all 0.2s; }
+        .grid-item:hover { transform: scale(1.1); }
+        .grid-item.current { border: 2px solid #064e3b; box-shadow: 0 0 0 2px #6ee7b7; }
+        .grid-item.answered { background-color: #064e3b; color: white; border-color: #064e3b; }
+        .grid-item.flagged { background-color: #f59e0b; color: white; border-color: #f59e0b; }
+
+        .shake { animation: shake 0.5s; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+
+        /* PRINT STYLES */
+        @media print {
+            body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            header, #auth-screen, #start-screen, #exam-area, #nav-sidebar, .no-print { display: none !important; }
+            #result-screen, #review-area { display: block !important; box-shadow: none; border: none; padding: 0; }
+            .page-break { page-break-before: always; }
+            button { display: none !important; }
+            ::-webkit-scrollbar { display: none; }
+            .container { max-width: 100% !important; padding: 0 !important; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="auth-gradient text-white p-4 sticky top-0 z-50 shadow-lg no-print">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-white rounded-full flex items-center justify-center text-uyo-primary font-bold text-lg">U</div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight">University of Uyo</h1>
+                    <p class="text-[10px] uppercase tracking-[0.2em] opacity-80 font-bold text-uyo-secondary">Set 1: Physiology</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="toggleGrid()" class="md:hidden text-white bg-white/20 p-2 rounded-lg">
+                    ▦
+                </button>
+                <div id="timer-display" class="hidden bg-black/30 px-4 py-1.5 rounded-lg border border-white/20 text-uyo-secondary font-mono text-xl font-bold">
+                    60:00
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex-grow flex relative">
+        
+        <!-- Sidebar Navigation Grid -->
+        <aside id="nav-sidebar" class="hidden md:block w-72 bg-white border-r border-emerald-100 p-4 overflow-y-auto h-[calc(100vh-80px)] sticky top-[80px] no-print z-40">
+            <div class="mb-4">
+                <h3 class="font-bold text-uyo-primary border-b border-emerald-100 pb-2">Question Navigator</h3>
+                <div class="flex gap-2 text-[10px] mt-2">
+                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-gray-200"></span> Empty</span>
+                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-uyo-primary"></span> Done</span>
+                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-uyo-secondary"></span> Flag</span>
+                </div>
+            </div>
+            <div id="question-grid" class="grid grid-cols-5 gap-2">
+                <!-- Grid items generated by JS -->
+            </div>
+        </aside>
+
+        <main class="flex-1 container mx-auto px-4 py-8 max-w-4xl">
+            
+            <!-- Password Screen -->
+            <div id="auth-screen" class="bg-white rounded-3xl shadow-2xl p-12 text-center max-w-md mx-auto mt-10 border-t-8 border-uyo-secondary">
+                <div class="text-6xl mb-6">🩸</div>
+                <h2 class="text-3xl font-bold mb-2 text-uyo-primary">Examination Portal</h2>
+                <p class="text-gray-500 mb-8 font-medium">PHS 211 & PHS 212</p>
+                <input type="password" id="pass-input" placeholder="Access Code" 
+                    class="w-full p-4 rounded-2xl border-2 border-emerald-100 mb-6 focus:outline-none focus:border-uyo-secondary text-center text-2xl tracking-[0.5em] mt-4">
+                <button onclick="unlockExam()" class="btn-uyo w-full py-4 rounded-2xl text-lg font-bold">Enter Exam Hall</button>
+                <p id="auth-error" class="text-red-500 mt-4 hidden font-bold italic">Invalid Code.</p>
+            </div>
+
+            <!-- Start Briefing -->
+            <div id="start-screen" class="hidden bg-white rounded-3xl shadow-2xl p-10 border-l-8 border-uyo-primary fade-in">
+                <h2 class="text-3xl font-bold mb-6 text-uyo-primary">Instructions to Candidates</h2>
+                <div class="bg-emerald-50 p-6 rounded-2xl mb-8 border border-emerald-100 text-gray-700 space-y-3">
+                    <p>✅ <strong>Course Coverage:</strong> PHS 211 (Blood/Intro) & PHS 212 (Excitable Tissues).</p>
+                    <p>✅ <strong>Time Limit:</strong> 60 Minutes (Strictly Enforced).</p>
+                    <p>✅ <strong>Features:</strong> Use the Flag button for review. Progress is Auto-Saved.</p>
+                </div>
+                <button onclick="initExam()" class="btn-uyo px-12 py-5 rounded-2xl text-xl font-bold w-full md:w-auto">Start Assessment ➜</button>
+            </div>
+
+            <!-- Exam Workspace -->
+            <div id="exam-area" class="hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <div class="text-xs font-bold text-gray-400 uppercase tracking-widest" id="counter-txt">Question 1</div>
+                    <button id="flag-btn" onclick="toggleFlag()" class="text-gray-400 hover:text-uyo-secondary transition-colors flex items-center gap-1 text-sm font-bold border px-3 py-1 rounded-full">
+                        <span>🏳️</span> Flag
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-3xl shadow-xl p-6 md:p-10 border border-emerald-50">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span id="course-label" class="bg-uyo-primary text-white text-[10px] font-black px-3 py-1 rounded-full uppercase">COURSE</span>
+                        <span id="topic-label" class="bg-emerald-50 text-emerald-600 text-[10px] font-bold px-3 py-1 rounded-full uppercase border border-emerald-100">TOPIC</span>
+                    </div>
+
+                    <h3 id="question-display" class="text-xl font-bold text-uyo-text mb-8 leading-snug">...</h3>
+
+                    <div id="options-container" class="grid grid-cols-1 gap-3 mb-8"></div>
+
+                    <div class="flex justify-between items-center border-t border-emerald-50 pt-6">
+                        <button onclick="prevQuestion()" class="text-gray-500 hover:text-uyo-primary font-bold">← Prev</button>
+                        <button id="next-button" onclick="nextQuestion()" class="btn-uyo px-8 py-3 rounded-xl font-bold">Next ➜</button>
+                    </div>
+                </div>
+                <div class="mt-8 text-center">
+                     <button onclick="finishExam()" class="bg-red-600 text-white px-6 py-2 rounded-lg font-bold text-sm hover:bg-red-700 shadow-lg">Submit Final Answers</button>
+                </div>
+            </div>
+
+            <!-- Results & Review -->
+            <div id="result-screen" class="hidden bg-white rounded-3xl shadow-none p-8 md:p-10 text-center print:p-0">
+                <div class="no-print">
+                    <h2 class="text-4xl font-bold text-uyo-primary mb-2">Performance Report</h2>
+                    <p class="text-gray-500 uppercase tracking-widest text-xs mb-8">Department of Physiology</p>
+                </div>
+
+                <!-- Score Cards -->
+                <div class="grid grid-cols-3 gap-4 mb-8">
+                    <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
+                        <p class="text-[10px] uppercase text-gray-400 font-black">Score</p>
+                        <p id="final-pct" class="text-3xl md:text-5xl font-black text-uyo-primary">0%</p>
+                    </div>
+                    <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
+                        <p class="text-[10px] uppercase text-gray-400 font-black">Correct</p>
+                        <p id="final-raw" class="text-3xl md:text-5xl font-black text-gray-700">0/100</p>
+                    </div>
+                    <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
+                        <p class="text-[10px] uppercase text-gray-400 font-black">Time</p>
+                        <p id="final-time" class="text-3xl md:text-5xl font-black text-gray-700">00:00</p>
+                    </div>
+                </div>
+
+                <!-- Topic Breakdown -->
+                <div class="text-left mb-8 page-break">
+                    <h4 class="font-bold mb-4 border-b pb-2 text-uyo-primary">Course Analysis</h4>
+                    <div id="analytics-grid" class="space-y-4"></div>
+                </div>
+
+                <!-- Deep Review Section -->
+                <div id="review-area" class="text-left mt-10 border-t-4 border-uyo-secondary pt-8">
+                    <h3 class="text-2xl font-bold mb-6 text-center text-uyo-primary print:text-left">Detailed Script Review</h3>
+                    <div id="review-list" class="space-y-6">
+                        <!-- Review items -->
+                    </div>
+                </div>
+
+                <div class="flex gap-4 mt-8 no-print sticky bottom-4 bg-white p-4 border-t shadow-2xl rounded-xl">
+                    <button onclick="clearAndReload()" class="flex-1 bg-gray-200 text-gray-800 py-3 rounded-xl font-bold">New Attempt</button>
+                    <button onclick="window.print()" class="flex-1 btn-uyo py-3 rounded-xl font-bold">Download PDF Result</button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // --- 100 QUESTIONS DATA (PHS 211 & PHS 212) ---
+        const rawBank = [
+            // PHS 211: FOUNDATIONS & BLOOD (1-50)
+            {q: "Who is considered the 'Father of Modern Physiology' for describing blood circulation?", options: ["Hippocrates", "William Harvey", "Claude Bernard", "Galen"], a: 1, c: "PHS 211", topic: "History"},
+            {q: "The concept of 'Milieu Interieur' (Internal Environment) was introduced by:", options: ["Walter Cannon", "Claude Bernard", "William Harvey", "Pavlov"], a: 1, c: "PHS 211", topic: "Foundations"},
+            {q: "Transport in the amphibian bladder is historically significant for studying:", options: ["Glucose transport", "Sodium transport", "Calcium release", "Potassium leak"], a: 1, c: "PHS 211", topic: "Transport"},
+            {q: "Which organ is NOT listed as a site for special transport mechanisms in the course outline?", options: ["Kidney", "Gallbladder", "Lungs", "Intestine"], a: 2, c: "PHS 211", topic: "Transport"},
+            {q: "Biological rhythms that follow a 24-hour cycle are termed:", options: ["Ultradian", "Infradian", "Circadian", "Lunar"], a: 2, c: "PHS 211", topic: "Homeostasis"},
+            {q: "The body's 'Thermostat' for temperature regulation is located in the:", options: ["Thalamus", "Hypothalamus", "Medulla", "Cerebellum"], a: 1, c: "PHS 211", topic: "Homeostasis"},
+            {q: "Haemopoiesis in the adult human occurs primarily in the:", options: ["Liver", "Spleen", "Yellow Marrow", "Red Bone Marrow"], a: 3, c: "PHS 211", topic: "Haemopoiesis"},
+            {q: "Which leukocyte is the first responder to bacterial infection?", options: ["Monocyte", "Lymphocyte", "Neutrophil", "Basophil"], a: 2, c: "PHS 211", topic: "WBCs"},
+            {q: "The primary function of Albumin in plasma is:", options: ["Blood clotting", "Immunity", "Oncotic pressure maintenance", "Iron transport"], a: 2, c: "PHS 211", topic: "Plasma Proteins"},
+            {q: "Fibrinolysis involves the breakdown of fibrin by:", options: ["Thrombin", "Plasmin", "Fibrinogen", "Collagen"], a: 1, c: "PHS 211", topic: "Coagulation"},
+            {q: "Which blood group is the universal donor for packed red cells?", options: ["AB Positive", "O Negative", "A Negative", "O Positive"], a: 1, c: "PHS 211", topic: "Blood Groups"},
+            {q: "Erythroblastosis fetalis is caused by incompatibility of:", options: ["ABO system", "Rh system", "HLA system", "Platelet antigens"], a: 1, c: "PHS 211", topic: "Blood Groups"},
+            {q: "The Reticuloendothelial System (RES) removes old RBCs in the:", options: ["Kidney", "Spleen", "Heart", "Lung"], a: 1, c: "PHS 211", topic: "RBCs"},
+            {q: "HIV specifically targets which immune cell?", options: ["CD8+ T cells", "B cells", "CD4+ Helper T cells", "Macrophages"], a: 2, c: "PHS 211", topic: "Immunity"},
+            {q: "A shift to the left in a differential count indicates:", options: ["Viral infection", "Chronic infection", "Acute bacterial infection", "Parasitic infection"], a: 2, c: "PHS 211", topic: "WBCs"},
+            {q: "Which substance is required for the absorption of Vitamin B12?", options: ["Ferritin", "Intrinsic Factor", "Transferrin", "Erythropoietin"], a: 1, c: "PHS 211", topic: "RBCs"},
+            {q: "The normal range for blood pH is:", options: ["7.0-7.2", "7.35-7.45", "7.5-7.6", "6.8-7.0"], a: 1, c: "PHS 211", topic: "Homeostasis"},
+            {q: "Which plasma protein transports Iron?", options: ["Albumin", "Haptoglobin", "Transferrin", "Ceruloplasmin"], a: 2, c: "PHS 211", topic: "Plasma Proteins"},
+            {q: "Platelets are fragments of:", options: ["Normoblasts", "Megakaryocytes", "Myeloblasts", "Monocytes"], a: 1, c: "PHS 211", topic: "Haemopoiesis"},
+            {q: "Vitamin K is essential for the synthesis of clotting factors:", options: ["I, II, V, VIII", "II, VII, IX, X", "XII, XI, IX, VIII", "I, II, III, IV"], a: 1, c: "PHS 211", topic: "Coagulation"},
+            {q: "Which WBC releases histamine?", options: ["Neutrophil", "Basophil", "Eosinophil", "Lymphocyte"], a: 1, c: "PHS 211", topic: "WBCs"},
+            {q: "Hypoxia stimulates the kidney to release:", options: ["Renin", "Erythropoietin", "Angiotensin", "Aldosterone"], a: 1, c: "PHS 211", topic: "Haemopoiesis"},
+            {q: "The lifespan of a Red Blood Cell is approximately:", options: ["10 days", "60 days", "120 days", "180 days"], a: 2, c: "PHS 211", topic: "RBCs"},
+            {q: "Serum is Plasma minus:", options: ["RBCs", "WBCs", "Clotting Factors (Fibrinogen)", "Albumin"], a: 2, c: "PHS 211", topic: "Plasma"},
+            {q: "Which Immunoglobulin crosses the placenta?", options: ["IgM", "IgA", "IgG", "IgE"], a: 2, c: "PHS 211", topic: "Immunity"},
+            {q: "The 'Buffy Coat' consists of:", options: ["RBCs", "Plasma", "WBCs and Platelets", "Serum"], a: 2, c: "PHS 211", topic: "Blood"},
+            {q: "Which anticoagulant is used in blood bags for transfusion?", options: ["Heparin", "Citrate Phosphate Dextrose (CPD)", "Warfarin", "EDTA"], a: 1, c: "PHS 211", topic: "Transfusion"},
+            {q: "Jaundice is characterized by the accumulation of:", options: ["Iron", "Bilirubin", "Hemoglobin", "Urea"], a: 1, c: "PHS 211", topic: "RBCs"},
+            {q: "The intrinsic pathway of coagulation is triggered by:", options: ["Tissue Factor", "Surface contact (Collagen)", "Calcium", "Platelets"], a: 1, c: "PHS 211", topic: "Coagulation"},
+            {q: "Which cell presents antigens to T-cells?", options: ["Macrophage", "Neutrophil", "RBC", "Basophil"], a: 0, c: "PHS 211", topic: "Immunity"},
+            {q: "Aplastic anemia results from destruction of:", options: ["Peripheral blood", "Spleen", "Bone Marrow", "Kidney"], a: 2, c: "PHS 211", topic: "RBCs"},
+            {q: "Which ion is Factor IV in the clotting cascade?", options: ["Na+", "K+", "Ca2+", "Mg2+"], a: 2, c: "PHS 211", topic: "Coagulation"},
+            {q: "Polycythemia refers to an increase in:", options: ["WBCs", "RBCs", "Platelets", "Plasma"], a: 1, c: "PHS 211", topic: "RBCs"},
+            {q: "The immediate precursor of the erythrocyte is:", options: ["Proerythroblast", "Reticulocyte", "Normoblast", "Stem cell"], a: 1, c: "PHS 211", topic: "Haemopoiesis"},
+            {q: "Spectrin is a protein important for:", options: ["Oxygen binding", "RBC membrane shape", "Clotting", "Immunity"], a: 1, c: "PHS 211", topic: "RBCs"},
+            {q: "Sickle cell anemia is caused by a mutation in the:", options: ["Alpha chain", "Beta chain", "Heme group", "Iron"], a: 1, c: "PHS 211", topic: "RBCs"},
+            {q: "Normal Hematocrit (PCV) for an adult male is roughly:", options: ["30%", "45%", "60%", "20%"], a: 1, c: "PHS 211", topic: "Blood"},
+            {q: "Which WBC is elevated in parasitic infections?", options: ["Neutrophil", "Eosinophil", "Basophil", "Monocyte"], a: 1, c: "PHS 211", topic: "WBCs"},
+            {q: "Natural Killer (NK) cells provide:", options: ["Innate immunity", "Adaptive immunity", "Humoral immunity", "Passive immunity"], a: 0, c: "PHS 211", topic: "Immunity"},
+            {q: "Major storage form of iron in the liver:", options: ["Transferrin", "Ferritin", "Haemosiderin", "Heme"], a: 1, c: "PHS 211", topic: "RBCs"},
+            {q: "Thrombocytopenia refers to low:", options: ["RBCs", "Platelets", "WBCs", "Plasma"], a: 1, c: "PHS 211", topic: "Haemostasis"},
+            {q: "Aspirin inhibits clotting by blocking:", options: ["Thrombin", "Thromboxane A2 synthesis", "Fibrin", "Vitamin K"], a: 1, c: "PHS 211", topic: "Haemostasis"},
+            {q: "Which organ produces Thrombopoietin?", options: ["Kidney", "Liver", "Spleen", "Marrow"], a: 1, c: "PHS 211", topic: "Haemopoiesis"},
+            {q: "ESR is a non-specific test for:", options: ["Anemia", "Inflammation", "Clotting time", "Blood type"], a: 1, c: "PHS 211", topic: "Blood"},
+            {q: "Diapedesis is the movement of:", options: ["RBCs", "WBCs out of vessels", "Platelets", "Plasma"], a: 1, c: "PHS 211", topic: "WBCs"},
+            {q: "Which blood group has no antigens on the RBC surface?", options: ["A", "B", "AB", "O"], a: 3, c: "PHS 211", topic: "Blood Groups"},
+            {q: "Kernicterus is brain damage caused by high:", options: ["Iron", "Unconjugated Bilirubin", "Glucose", "Urea"], a: 1, c: "PHS 211", topic: "RBCs"},
+            {q: "Hemophilia A is a deficiency of Factor:", options: ["VII", "VIII", "IX", "X"], a: 1, c: "PHS 211", topic: "Coagulation"},
+            {q: "Active transport in Astrocytes helps regulate extracellular:", options: ["Na+", "K+", "Ca2+", "Cl-"], a: 1, c: "PHS 211", topic: "Transport"},
+            {q: "The term 'Homeostasis' was coined by:", options: ["Claude Bernard", "Walter Cannon", "Harvey", "Starling"], a: 1, c: "PHS 211", topic: "Foundations"},
+
+            // PHS 212: EXCITABLE TISSUES (51-100)
+            {q: "The functional unit of a skeletal muscle fiber is the:", options: ["Sarcolemma", "Sarcomere", "Myofibril", "T-tubule"], a: 1, c: "PHS 212", topic: "Muscle Structure"},
+            {q: "Resting Membrane Potential (RMP) is closest to the equilibrium potential of:", options: ["Na+", "K+", "Ca2+", "Cl-"], a: 1, c: "PHS 212", topic: "RMP"},
+            {q: "In skeletal muscle, Calcium binds to which protein to initiate contraction?", options: ["Actin", "Myosin", "Troponin C", "Tropomyosin"], a: 2, c: "PHS 212", topic: "Contraction"},
+            {q: "The depolarization phase of a nerve Action Potential is due to:", options: ["K+ efflux", "Na+ influx", "Ca2+ influx", "Cl- influx"], a: 1, c: "PHS 212", topic: "Action Potential"},
+            {q: "Which type of muscle is non-striated and involuntary?", options: ["Skeletal", "Cardiac", "Smooth", "All of the above"], a: 2, c: "PHS 212", topic: "Muscle Types"},
+            {q: "The neurotransmitter at the Neuromuscular Junction is:", options: ["Norepinephrine", "Acetylcholine", "Dopamine", "Serotonin"], a: 1, c: "PHS 212", topic: "NMJ"},
+            {q: "Myelin sheath in the peripheral nervous system is formed by:", options: ["Oligodendrocytes", "Schwann cells", "Astrocytes", "Microglia"], a: 1, c: "PHS 212", topic: "Nerves"},
+            {q: "Saltatory conduction occurs at the:", options: ["Dendrites", "Nodes of Ranvier", "Soma", "Synapse"], a: 1, c: "PHS 212", topic: "Conduction"},
+            {q: "The T-tubule system functions to:", options: ["Store Calcium", "Conduct AP deep into the muscle", "Synthesize ATP", "Remove waste"], a: 1, c: "PHS 212", topic: "Muscle Structure"},
+            {q: "Repolarization of the nerve membrane is caused by:", options: ["Na+ influx", "K+ efflux", "Ca2+ influx", "Na+ efflux"], a: 1, c: "PHS 212", topic: "Action Potential"},
+            {q: "Which protein blocks the myosin-binding site on actin at rest?", options: ["Troponin", "Tropomyosin", "Titin", "Nebulin"], a: 1, c: "PHS 212", topic: "Contraction"},
+            {q: "The 'All-or-None' law applies to:", options: ["Graded potentials", "Action potentials", "Resting potentials", "Receptor potentials"], a: 1, c: "PHS 212", topic: "Action Potential"},
+            {q: "Smooth muscle contraction is regulated by Calcium binding to:", options: ["Troponin", "Calmodulin", "Myosin", "Actin"], a: 1, c: "PHS 212", topic: "Smooth Muscle"},
+            {q: "Cardiac muscle cells are connected by:", options: ["Tight junctions", "Intercalated discs (Gap junctions)", "Synapses", "Desmosomes only"], a: 1, c: "PHS 212", topic: "Cardiac Muscle"},
+            {q: "The Absolute Refractory Period corresponds to when:", options: ["Na+ channels are inactivated", "K+ channels are open", "RMP is restored", "Ca2+ enters"], a: 0, c: "PHS 212", topic: "Refractory Period"},
+            {q: "Synaptic vesicles release neurotransmitters via:", options: ["Endocytosis", "Exocytosis", "Diffusion", "Active transport"], a: 1, c: "PHS 212", topic: "Synapse"},
+            {q: "Which ion influx triggers vesicle fusion at the presynaptic terminal?", options: ["Na+", "K+", "Ca2+", "Cl-"], a: 2, c: "PHS 212", topic: "Synapse"},
+            {q: "A motor unit consists of:", options: ["One neuron and one muscle fiber", "One neuron and all muscle fibers it innervates", "Many neurons and one muscle fiber", "Muscle fibers only"], a: 1, c: "PHS 212", topic: "NMJ"},
+            {q: "Which muscle type has unstable membrane potentials (Pacemaker)?", options: ["Skeletal", "Multi-unit smooth", "Single-unit (Visceral) smooth/Cardiac", "Voluntary"], a: 2, c: "PHS 212", topic: "Muscle Types"},
+            {q: "The Na+/K+ pump moves:", options: ["3 Na out, 2 K in", "2 Na out, 3 K in", "3 Na in, 2 K out", "Equal amounts"], a: 0, c: "PHS 212", topic: "RMP"},
+            {q: "Rigor Mortis is caused by a lack of:", options: ["Calcium", "ATP", "Sodium", "Oxygen"], a: 1, c: "PHS 212", topic: "Contraction"},
+            {q: "The space between a neuron and a muscle cell is the:", options: ["Synaptic cleft", "Gap junction", "T-tubule", "Sarcoplasm"], a: 0, c: "PHS 212", topic: "NMJ"},
+            {q: "Which fiber type is slow-twitch and fatigue-resistant (Red muscle)?", options: ["Type I", "Type IIa", "Type IIb", "Fast glycolytic"], a: 0, c: "PHS 212", topic: "Muscle Types"},
+            {q: "Summation of muscle contractions over time is called:", options: ["Spatial summation", "Temporal summation (Tetanus)", "Recruitment", "Fatigue"], a: 1, c: "PHS 212", topic: "Contraction"},
+            {q: "Acetylcholinesterase functions to:", options: ["Synthesize ACh", "Degrade ACh", "Transport ACh", "Block ACh"], a: 1, c: "PHS 212", topic: "NMJ"},
+            {q: "Hyperpolarization (undershoot) is due to prolonged opening of:", options: ["Na+ channels", "K+ channels", "Ca2+ channels", "Cl- channels"], a: 1, c: "PHS 212", topic: "Action Potential"},
+            {q: "Which toxin blocks voltage-gated Na+ channels (Pufferfish)?", options: ["Botulinum", "Curare", "Tetrodotoxin (TTX)", "Tetanus"], a: 2, c: "PHS 212", topic: "Pathology"},
+            {q: "The sliding filament theory explains:", options: ["Nerve conduction", "Muscle contraction", "Synaptic transmission", "Sensory reception"], a: 1, c: "PHS 212", topic: "Contraction"},
+            {q: "In cardiac muscle, Calcium-Induced Calcium Release (CICR) occurs from the:", options: ["Mitochondria", "Sarcoplasmic Reticulum", "Nucleus", "Golgi"], a: 1, c: "PHS 212", topic: "Cardiac Muscle"},
+            {q: "Gap junctions are electrically:", options: ["Insulating", "Low resistance (coupling)", "High resistance", "Impermeable"], a: 1, c: "PHS 212", topic: "Cardiac Muscle"},
+            {q: "Which muscle type lacks sarcomeres?", options: ["Skeletal", "Cardiac", "Smooth", "Striated"], a: 2, c: "PHS 212", topic: "Muscle Types"},
+            {q: "The 'Triad' in skeletal muscle consists of:", options: ["1 T-tubule + 2 Terminal Cisternae", "1 T-tubule + 1 Cisterna", "2 T-tubules + 1 Cisterna", "Z lines"], a: 0, c: "PHS 212", topic: "Muscle Structure"},
+            {q: "Threshold potential is typically around:", options: ["-70 mV", "-55 mV", "+30 mV", "0 mV"], a: 1, c: "PHS 212", topic: "Action Potential"},
+            {q: "Curare causes paralysis by blocking:", options: ["Na+ channels", "ACh receptors (Nicotinic)", "Ca2+ channels", "K+ channels"], a: 1, c: "PHS 212", topic: "Pathology"},
+            {q: "Isometric contraction involves:", options: ["Change in length, constant tension", "Constant length, change in tension", "Movement", "Relaxation"], a: 1, c: "PHS 212", topic: "Contraction"},
+            {q: "The speed of nerve conduction increases with:", options: ["Decreased diameter", "Myelination and increased diameter", "Cold temperature", "Lack of myelin"], a: 1, c: "PHS 212", topic: "Conduction"},
+            {q: "Which protein anchors myosin to the Z-line?", options: ["Actin", "Titin", "Dystrophin", "Nebulin"], a: 1, c: "PHS 212", topic: "Muscle Structure"},
+            {q: "Myasthenia Gravis is an autoimmune attack on:", options: ["Presynaptic Ca2+ channels", "Postsynaptic ACh receptors", "Myosin heads", "Schwann cells"], a: 1, c: "PHS 212", topic: "Pathology"},
+            {q: "The 'Power Stroke' is caused by:", options: ["ATP binding", "Release of ADP and Pi", "Calcium binding", "Hydrolysis of ATP"], a: 1, c: "PHS 212", topic: "Contraction"},
+            {q: "Which band shortens during contraction?", options: ["A band", "I band", "Z line", "M line"], a: 1, c: "PHS 212", topic: "Contraction"},
+            {q: "Botulinum toxin inhibits release of:", options: ["GABA", "Acetylcholine", "Serotonin", "Dopamine"], a: 1, c: "PHS 212", topic: "Pathology"},
+            {q: "EPSP (Excitatory Postsynaptic Potential) involves influx of:", options: ["Cl-", "K+", "Na+", "Mg2+"], a: 2, c: "PHS 212", topic: "Synapse"},
+            {q: "IPSP (Inhibitory Postsynaptic Potential) involves influx of:", options: ["Na+", "Ca2+", "Cl-", "H+"], a: 2, c: "PHS 212", topic: "Synapse"},
+            {q: "Smooth muscle uses which enzyme for contraction?", options: ["Myosin ATPase", "Myosin Light Chain Kinase (MLCK)", "Creatine Kinase", "Phosphatase"], a: 1, c: "PHS 212", topic: "Smooth Muscle"},
+            {q: "Which muscle can sustain contraction for long periods (Latch state)?", options: ["Skeletal", "Cardiac", "Smooth", "All"], a: 2, c: "PHS 212", topic: "Smooth Muscle"},
+            {q: "Saltatory conduction is energy efficient because:", options: ["No ATP is used", "Pumps work only at Nodes", "Myelin produces ATP", "It is slower"], a: 1, c: "PHS 212", topic: "Conduction"},
+            {q: "Graded potentials are:", options: ["All-or-none", "Decremental (decay with distance)", "Propagated", "Always depolarizing"], a: 1, c: "PHS 212", topic: "Action Potential"},
+            {q: "The equilibrium potential for Potassium is:", options: ["+60 mV", "-90 mV", "0 mV", "-70 mV"], a: 1, c: "PHS 212", topic: "RMP"},
+            {q: "Dense bodies in smooth muscle are analogous to:", options: ["M lines", "Z lines", "A bands", "T tubules"], a: 1, c: "PHS 212", topic: "Smooth Muscle"},
+            {q: "Fatigue in muscle is associated with buildup of:", options: ["ATP", "Lactic Acid", "Glucose", "Oxygen"], a: 1, c: "PHS 212", topic: "Contraction"}
+        ];
+
+        // --- STATE MANAGEMENT ---
+        let state = {
+            questions: [],
+            answers: new Array(100).fill(null),
+            flagged: new Array(100).fill(false),
+            currentIndex: 0,
+            timeLeft: 60 * 60, // 60 Minutes
+            status: 'auth'
+        };
+
+        let timerInterval;
+
+        function loadState() {
+            const saved = localStorage.getItem('splendid_exam_set1');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (parsed.status === 'active') {
+                    state = parsed;
+                    showScreen('exam-area');
+                    initGrid();
+                    renderQuestion();
+                    startTimer();
+                    updateNavGrid();
+                }
+            }
+        }
+
+        function saveState() {
+            localStorage.setItem('splendid_exam_set1', JSON.stringify(state));
+        }
+
+        function clearAndReload() {
+            localStorage.removeItem('splendid_exam_set1');
+            location.reload();
+        }
+
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex != 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        // --- AUTH & FLOW ---
+        function unlockExam() {
+            const pass = document.getElementById('pass-input').value;
+            if (pass === 'AAT') {
+                showScreen('start-screen');
+                state.status = 'start';
+            } else {
+                const err = document.getElementById('auth-error');
+                err.classList.remove('hidden');
+                document.getElementById('auth-screen').classList.add('shake');
+                setTimeout(()=>document.getElementById('auth-screen').classList.remove('shake'), 500);
+            }
+        }
+
+        function initExam() {
+            if (state.questions.length === 0) {
+                state.questions = shuffle([...rawBank]);
+            }
+            state.status = 'active';
+            showScreen('exam-area');
+            initGrid();
+            renderQuestion();
+            startTimer();
+            saveState();
+        }
+
+        function showScreen(id) {
+            ['auth-screen', 'start-screen', 'exam-area', 'result-screen'].forEach(s => {
+                document.getElementById(s).classList.add('hidden');
+            });
+            document.getElementById(id).classList.remove('hidden');
+            
+            const sb = document.getElementById('nav-sidebar');
+            const timer = document.getElementById('timer-display');
+            if (id === 'exam-area') {
+                sb.classList.remove('hidden');
+                timer.classList.remove('hidden');
+            } else {
+                sb.classList.add('hidden');
+                timer.classList.add('hidden');
+            }
+        }
+
+        // --- TIMER ---
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                state.timeLeft--;
+                const m = Math.floor(state.timeLeft / 60);
+                const s = state.timeLeft % 60;
+                document.getElementById('timer-display').textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+                
+                if (state.timeLeft % 5 === 0) saveState();
+                if (state.timeLeft <= 0) finishExam();
+            }, 1000);
+        }
+
+        // --- UI RENDERING ---
+        function initGrid() {
+            const grid = document.getElementById('question-grid');
+            grid.innerHTML = '';
+            for(let i=0; i<100; i++) {
+                const div = document.createElement('div');
+                div.className = 'grid-item h-8 rounded bg-gray-100 text-[10px] flex items-center justify-center font-bold text-gray-500';
+                div.textContent = i+1;
+                div.onclick = () => jumpToQuestion(i);
+                div.id = `grid-${i}`;
+                grid.appendChild(div);
+            }
+            updateNavGrid();
+        }
+
+        function updateNavGrid() {
+            for(let i=0; i<100; i++) {
+                const el = document.getElementById(`grid-${i}`);
+                el.className = 'grid-item h-8 rounded text-[10px] flex items-center justify-center font-bold text-gray-500 transition-colors';
+                
+                if (state.answers[i] !== null) el.classList.add('bg-uyo-primary', 'text-white', 'border-uyo-primary');
+                else el.classList.add('bg-gray-200');
+
+                if (state.flagged[i]) el.classList.add('bg-uyo-secondary', 'text-white');
+                if (i === state.currentIndex) el.classList.add('ring-2', 'ring-offset-1', 'ring-emerald-400');
+            }
+        }
+
+        function renderQuestion() {
+            const q = state.questions[state.currentIndex];
+            document.getElementById('counter-txt').textContent = `Question ${state.currentIndex + 1} of 100`;
+            document.getElementById('course-label').textContent = q.course;
+            document.getElementById('topic-label').textContent = q.topic;
+            document.getElementById('question-display').textContent = q.q;
+
+            const flagBtn = document.getElementById('flag-btn');
+            flagBtn.className = state.flagged[state.currentIndex] 
+                ? 'text-uyo-secondary font-bold flex items-center gap-1 text-sm border border-uyo-secondary bg-amber-50 px-3 py-1 rounded-full'
+                : 'text-gray-400 hover:text-uyo-secondary transition-colors flex items-center gap-1 text-sm font-bold border px-3 py-1 rounded-full';
+
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            q.options.forEach((opt, idx) => {
+                const div = document.createElement('div');
+                let classes = 'option-card p-4 rounded-xl flex items-center gap-3 transition-all';
+                if (state.answers[state.currentIndex] === idx) classes += ' border-uyo-primary bg-emerald-50 font-bold';
+                else classes += ' border-emerald-100 hover:border-uyo-primary';
+                
+                div.className = classes;
+                div.innerHTML = `
+                    <div class="w-8 h-8 rounded-full border flex items-center justify-center text-xs font-bold ${state.answers[state.currentIndex]===idx ? 'bg-uyo-primary text-white border-uyo-primary' : 'text-gray-400 border-gray-300'}">${String.fromCharCode(65+idx)}</div>
+                    <span class="text-sm md:text-base text-gray-700">${opt}</span>
+                `;
+                div.onclick = () => selectAnswer(idx);
+                container.appendChild(div);
+            });
+            updateNavGrid();
+        }
+
+        // --- INTERACTIONS ---
+        function selectAnswer(idx) {
+            state.answers[state.currentIndex] = idx;
+            renderQuestion();
+            saveState();
+        }
+
+        function toggleFlag() {
+            state.flagged[state.currentIndex] = !state.flagged[state.currentIndex];
+            renderQuestion();
+            saveState();
+        }
+
+        function jumpToQuestion(idx) {
+            state.currentIndex = idx;
+            renderQuestion();
+        }
+
+        function nextQuestion() {
+            if (state.currentIndex < 99) {
+                state.currentIndex++;
+                renderQuestion();
+            }
+        }
+
+        function prevQuestion() {
+            if (state.currentIndex > 0) {
+                state.currentIndex--;
+                renderQuestion();
+            }
+        }
+
+        function toggleGrid() {
+            document.getElementById('nav-sidebar').classList.toggle('hidden');
+        }
+
+        // --- FINISH ---
+        function finishExam() {
+            clearInterval(timerInterval);
+            state.status = 'finished';
+            saveState();
+            localStorage.removeItem('splendid_exam_set1');
+
+            showScreen('result-screen');
+            document.getElementById('nav-sidebar').classList.add('hidden');
+
+            let correctCount = 0;
+            state.questions.forEach((q, i) => {
+                if (state.answers[i] === q.a) correctCount++;
+            });
+            const pct = Math.round(correctCount);
+
+            document.getElementById('final-pct').textContent = `${pct}%`;
+            document.getElementById('final-raw').textContent = `${correctCount}/100`;
+            
+            // Analytics
+            const subjects = ["PHS 211", "PHS 212"];
+            const grid = document.getElementById('analytics-grid');
+            grid.innerHTML = '';
+            
+            subjects.forEach(sub => {
+                const subQs = state.questions.filter(q => q.course === sub);
+                if (subQs.length === 0) return;
+                
+                let subCorrect = 0;
+                subQs.forEach(q => {
+                    const idx = state.questions.indexOf(q);
+                    if (state.answers[idx] === q.a) subCorrect++;
+                });
+                
+                const subPct = Math.round((subCorrect / subQs.length) * 100);
+                const div = document.createElement('div');
+                div.innerHTML = `
+                    <div class="flex justify-between text-sm font-bold mb-1 text-gray-700">
+                        <span>${sub}</span>
+                        <span>${subPct}%</span>
+                    </div>
+                    <div class="w-full bg-gray-100 rounded-full h-2.5">
+                        <div class="bg-uyo-primary h-2.5 rounded-full" style="width: ${subPct}%"></div>
+                    </div>
+                `;
+                grid.appendChild(div);
+            });
+
+            // Review
+            const reviewList = document.getElementById('review-list');
+            reviewList.innerHTML = '';
+            
+            state.questions.forEach((q, i) => {
+                const userAns = state.answers[i];
+                const isCorrect = userAns === q.a;
+                
+                const div = document.createElement('div');
+                div.className = `p-4 rounded-xl border-l-4 ${isCorrect ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'} page-break`;
+                
+                let optionsHTML = '';
+                q.options.forEach((opt, oIdx) => {
+                    let optClass = "text-sm p-1 rounded ";
+                    if (oIdx === q.a) optClass += "font-bold text-green-700 bg-green-100"; 
+                    else if (oIdx === userAns && !isCorrect) optClass += "font-bold text-red-700 bg-red-100";
+                    else optClass += "text-gray-500";
+                    
+                    optionsHTML += `<div class="${optClass}">${String.fromCharCode(65+oIdx)}. ${opt}</div>`;
+                });
+
+                div.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="font-bold text-gray-700 text-sm">Q${i+1}. ${q.q}</span>
+                        <span class="text-[10px] font-black uppercase px-2 py-1 rounded ${isCorrect ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800'}">${isCorrect ? 'CORRECT' : 'WRONG'}</span>
+                    </div>
+                    <div class="space-y-1 pl-2 mb-2">${optionsHTML}</div>
+                    <div class="text-[10px] uppercase font-bold text-gray-400">Course: ${q.course} | Topic: ${q.topic}</div>
+                `;
+                reviewList.appendChild(div);
+            });
+        }
+
+        window.onload = loadState;
+    </script>
+</body>
+                  </html>
