@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Splendid's Academy | Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap'); body { font-family: 'Inter', sans-serif; }</style>
+</head>
+<body class="bg-slate-50">
+    
+    <nav class="bg-slate-900 text-white p-4 flex justify-between items-center shadow-lg">
+        <div class="flex items-center gap-3">
+            <button class="text-2xl text-slate-400 hover:text-white"><i class="fas fa-bars"></i></button>
+            <h1 class="font-bold text-lg tracking-tight">Splendid's Academy</h1>
+        </div>
+        <div class="flex items-center gap-4">
+            <span id="user-name" class="text-sm font-medium text-emerald-400">Loading...</span>
+            <button onclick="logout()" class="bg-red-600 text-xs font-bold px-3 py-2 rounded hover:bg-red-700 transition">LOG OUT</button>
+        </div>
+    </nav>
+
+    <div class="p-8 text-center mt-10">
+        <h2 class="text-3xl font-bold text-slate-800 mb-4">Welcome to the V2 Portal 🚀</h2>
+        <p class="text-slate-600 mb-8">This is the secure area. Only logged-in students can see this.</p>
+        
+        <div class="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            <div class="bg-white p-6 rounded-xl shadow-md border-l-4 border-emerald-500">
+                <h3 class="font-bold text-lg">My Progress</h3>
+                <p class="text-sm text-slate-500 mt-2">Database Connection: <span class="text-green-600 font-bold">ACTIVE</span></p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-md border-l-4 border-blue-500">
+                <h3 class="font-bold text-lg">Library Access</h3>
+                <p class="text-sm text-slate-500 mt-2">User Authentication: <span class="text-green-600 font-bold">VERIFIED</span></p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        // Your Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyCrF_INEtL9bZKAoDPYCuTaVMRWGAdbcew",
+            authDomain: "splendids-academy-v2.firebaseapp.com",
+            projectId: "splendids-academy-v2",
+            storageBucket: "splendids-academy-v2.firebasestorage.app",
+            messagingSenderId: "573697150601",
+            appId: "1:573697150601:web:74c556c85b6be053018058",
+            measurementId: "G-VVDT1PMHNX"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Security Check: If not logged in, kick them back to login page
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is signed in
+                document.getElementById('user-name').textContent = user.displayName || user.email;
+            } else {
+                // User is NOT signed in
+                window.location.href = "index.html";
+            }
+        });
+
+        // Logout Function
+        window.logout = function() {
+            signOut(auth).then(() => {
+                window.location.href = "index.html";
+            }).catch((error) => {
+                alert("Error logging out: " + error);
+            });
+        }
+    </script>
+</body>
+</html>
