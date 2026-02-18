@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CBT Session</title>
+    <title>CBT Session | Splendid's Academy</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -13,6 +13,10 @@
         .option-card:hover { transform: translateX(5px); border-color: #0d9488; background-color: #f0fdfa; }
         .selected-option { background-color: #0d9488 !important; color: white !important; border-color: #0d9488 !important; }
         .timer-font { font-family: 'JetBrains Mono', monospace; }
+        
+        /* Review Mode Styles */
+        .correct-answer { border-color: #10b981 !important; background-color: #ecfdf5 !important; color: #065f46 !important; }
+        .wrong-answer { border-color: #ef4444 !important; background-color: #fef2f2 !important; color: #991b1b !important; }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen flex flex-col">
@@ -30,14 +34,14 @@
 
     <div class="w-full bg-slate-200 h-1"><div id="progress-bar" class="bg-emerald-500 h-1 transition-all duration-300" style="width: 0%"></div></div>
 
-    <main class="flex-1 flex flex-col items-center justify-center p-4 max-w-3xl mx-auto w-full">
+    <main class="flex-1 flex flex-col items-center justify-center p-4 max-w-3xl mx-auto w-full" id="quiz-main">
         <div class="w-full bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
             <div class="p-8">
                 <div class="flex justify-between items-start mb-6">
                     <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full">Question <span id="q-number">1</span></span>
                     <span class="text-xs font-bold text-slate-400">10 Marks</span>
                 </div>
-                <h2 id="question-text" class="text-xl md:text-2xl font-bold text-slate-800 leading-snug mb-8">Loading Question...</h2>
+                <h2 id="question-text" class="text-xl md:text-2xl font-bold text-slate-800 leading-snug mb-8">Loading...</h2>
                 <div id="options-container" class="space-y-3"></div>
             </div>
             <div class="bg-slate-50 p-4 border-t border-slate-200 flex justify-between items-center">
@@ -47,13 +51,25 @@
         </div>
     </main>
 
+    <div id="review-area" class="hidden max-w-3xl mx-auto w-full p-4 pb-20 space-y-4">
+        <h2 class="text-2xl font-bold text-slate-800 text-center mb-6">📝 Script Review</h2>
+        <div id="review-list" class="space-y-6">
+            </div>
+        <button onclick="window.location.href='cbt.html'" class="fixed bottom-6 right-6 bg-slate-900 text-white px-6 py-4 rounded-full font-bold shadow-2xl hover:scale-105 transition">Finish Review <i class="fas fa-check ml-2"></i></button>
+    </div>
+
     <div id="result-modal" class="fixed inset-0 bg-slate-900/90 z-50 hidden flex items-center justify-center backdrop-blur-sm">
         <div class="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl">
             <div id="result-icon" class="h-20 w-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-4xl mx-auto mb-6"><i class="fas fa-trophy"></i></div>
             <h2 id="result-title" class="text-3xl font-extrabold text-slate-800 mb-2">Done!</h2>
             <p class="text-slate-500 mb-6">Score: <span id="score-display" class="font-bold text-emerald-600 text-xl">0%</span></p>
+            
             <div id="unlock-msg" class="bg-emerald-50 border border-emerald-200 p-3 rounded-xl mb-6 hidden"><p class="text-xs font-bold text-emerald-800">🔓 NEXT LEVEL UNLOCKED</p></div>
-            <button onclick="window.location.href='cbt.html'" class="w-full py-4 bg-slate-900 text-white rounded-xl font-bold shadow-lg">Back to Menu</button>
+            
+            <div class="space-y-3">
+                <button onclick="startReview()" class="w-full py-3 bg-white border-2 border-slate-200 text-slate-700 rounded-xl font-bold hover:bg-slate-50 transition">🔍 Review Answers</button>
+                <button onclick="window.location.href='cbt.html'" class="w-full py-3 bg-slate-900 text-white rounded-xl font-bold shadow-lg">Back to Menu</button>
+            </div>
         </div>
     </div>
 
@@ -67,7 +83,7 @@
 
         document.getElementById('header-course').textContent = `${COURSE_CODE} • ${LEVEL}`;
 
-        // 2. Fetch Questions from Vault
+        // 2. Fetch Questions
         let questions = [];
         if (typeof QUESTION_VAULT !== 'undefined' && QUESTION_VAULT[COURSE_CODE] && QUESTION_VAULT[COURSE_CODE][LEVEL]) {
             questions = QUESTION_VAULT[COURSE_CODE][LEVEL];
@@ -80,6 +96,7 @@
         let currentQ = 0;
         let userAnswers = new Array(questions.length).fill(null);
         let timeLeft = 600; 
+        let timerInterval;
 
         window.onload = function() { loadQuestion(); startTimer(); };
 
@@ -103,7 +120,6 @@
 
             document.getElementById('progress-bar').style.width = `${((currentQ + 1) / questions.length) * 100}%`;
             
-            // Buttons
             document.getElementById('btn-prev').disabled = currentQ === 0;
             const nextBtn = document.getElementById('btn-next');
             if(currentQ === questions.length - 1) {
@@ -125,6 +141,7 @@
         }
 
         function finishQuiz() {
+            clearInterval(timerInterval);
             let correct = 0;
             questions.forEach((q, i) => { if(userAnswers[i] === q.a) correct++; });
             const score = Math.round((correct / questions.length) * 100);
@@ -135,7 +152,6 @@
             if(score >= 50) {
                 document.getElementById('unlock-msg').classList.remove('hidden');
                 document.getElementById('result-title').textContent = "Passed!";
-                // SAVE PROGRESS
                 localStorage.setItem(`${COURSE_CODE}_${LEVEL}_passed`, 'true');
             } else {
                 document.getElementById('unlock-msg').classList.add('hidden');
@@ -143,14 +159,49 @@
             }
         }
 
+        function startReview() {
+            document.getElementById('result-modal').classList.add('hidden');
+            document.getElementById('quiz-main').classList.add('hidden');
+            document.getElementById('review-area').classList.remove('hidden');
+            
+            const list = document.getElementById('review-list');
+            list.innerHTML = '';
+
+            questions.forEach((q, i) => {
+                const userChoice = userAnswers[i];
+                const isCorrect = userChoice === q.a;
+                
+                const div = document.createElement('div');
+                div.className = "bg-white p-6 rounded-xl shadow-sm border border-slate-200";
+                
+                let optionsHtml = '';
+                q.options.forEach((opt, idx) => {
+                    let classes = "p-3 rounded-lg border border-slate-100 mb-2 text-sm";
+                    if (idx === q.a) classes = "p-3 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-800 font-bold mb-2 text-sm"; // Correct Answer
+                    else if (idx === userChoice && !isCorrect) classes = "p-3 rounded-lg border border-red-200 bg-red-50 text-red-800 font-bold mb-2 text-sm"; // Your Wrong Answer
+                    
+                    optionsHtml += `<div class="${classes}">${String.fromCharCode(65 + idx)}. ${opt}</div>`;
+                });
+
+                div.innerHTML = `
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="text-xs font-bold ${isCorrect ? 'text-emerald-600 bg-emerald-100' : 'text-red-600 bg-red-100'} px-2 py-1 rounded">Q${i+1}</span>
+                        <h3 class="font-bold text-slate-800">${q.q}</h3>
+                    </div>
+                    ${optionsHtml}
+                `;
+                list.appendChild(div);
+            });
+        }
+
         function startTimer() {
             const timerEl = document.getElementById('timer');
-            const interval = setInterval(() => {
+            timerInterval = setInterval(() => {
                 timeLeft--;
                 const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
                 const s = (timeLeft % 60).toString().padStart(2, '0');
                 timerEl.textContent = `${m}:${s}`;
-                if(timeLeft <= 0) { clearInterval(interval); finishQuiz(); }
+                if(timeLeft <= 0) { clearInterval(timerInterval); finishQuiz(); }
             }, 1000);
         }
     </script>
