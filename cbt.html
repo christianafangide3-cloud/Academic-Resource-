@@ -9,49 +9,36 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f0fdfa; }
-        
-        /* Lock Animation */
         .locked-card { filter: grayscale(100%); opacity: 0.7; pointer-events: none; }
-        .locked-icon { animation: shake 2s infinite; }
-        
-        @keyframes shake {
-            0% { transform: rotate(0deg); }
-            25% { transform: rotate(5deg); }
-            75% { transform: rotate(-5deg); }
-            100% { transform: rotate(0deg); }
-        }
     </style>
 </head>
 <body class="min-h-screen pb-20">
 
-    <nav class="bg-teal-900 text-white p-4 sticky top-0 z-50 shadow-lg flex justify-between items-center">
+    <nav class="bg-teal-900 text-white p-4 sticky top-0 z-50 flex justify-between items-center shadow-lg">
         <div class="flex items-center gap-3">
-            <a href="dashboard.html" class="text-teal-400 hover:text-white transition"><i class="fas fa-arrow-left"></i></a>
-            <h1 class="font-bold text-lg tracking-tight">Assessment Engine</h1>
+            <a href="dashboard.html" class="text-teal-400 hover:text-white"><i class="fas fa-arrow-left"></i></a>
+            <h1 class="font-bold text-lg">Assessment Engine</h1>
         </div>
         <div class="text-xs font-bold text-teal-400 border border-teal-700 bg-teal-800 px-2 py-1 rounded">ANA 211</div>
     </nav>
 
     <div class="p-6 text-center">
         <h2 class="text-2xl font-extrabold text-teal-900">Gross Anatomy Track</h2>
-        <p class="text-sm text-teal-600">Complete modules in order to unlock the Final Exam.</p>
+        <p class="text-sm text-teal-600">Complete modules in order.</p>
     </div>
 
     <div class="max-w-md mx-auto px-4 space-y-4">
 
-        <div id="level-beginner" class="bg-white p-6 rounded-2xl shadow-lg border-l-8 border-teal-500 relative overflow-hidden group hover:scale-105 transition-transform">
+        <div id="level-beginner" class="bg-white p-6 rounded-2xl shadow-lg border-l-8 border-teal-500 relative overflow-hidden">
             <div class="flex justify-between items-center">
                 <div>
                     <span class="bg-teal-100 text-teal-800 text-[10px] font-bold px-2 py-1 rounded uppercase">Level 1</span>
-                    <h3 class="font-bold text-xl text-slate-800 mt-1">Beginner</h3>
-                    <p class="text-xs text-slate-500 mt-1">Bones & Joints • 30 Questions</p>
+                    <h3 class="font-bold text-xl text-slate-800">Beginner</h3>
+                    <p class="text-xs text-slate-500">Bones & Joints</p>
                 </div>
-                <div class="h-12 w-12 rounded-full bg-teal-600 text-white flex items-center justify-center text-xl shadow-lg shadow-teal-200">
+                <div class="h-12 w-12 rounded-full bg-teal-600 text-white flex items-center justify-center text-xl shadow-lg">
                     <i class="fas fa-play ml-1"></i>
                 </div>
-            </div>
-            <div class="w-full bg-gray-200 rounded-full h-1.5 mt-4">
-                <div class="bg-teal-600 h-1.5 rounded-full" style="width: 0%"></div>
             </div>
             <button onclick="startQuiz('beginner')" class="absolute inset-0 w-full h-full cursor-pointer opacity-0">Start</button>
         </div>
@@ -60,16 +47,12 @@
             <div class="flex justify-between items-center">
                 <div>
                     <span class="bg-gray-100 text-gray-500 text-[10px] font-bold px-2 py-1 rounded uppercase">Level 2</span>
-                    <h3 class="font-bold text-xl text-slate-800 mt-1">Intermediate</h3>
-                    <p class="text-xs text-slate-500 mt-1">Muscles & Nerves • 40 Questions</p>
+                    <h3 class="font-bold text-xl text-slate-800">Intermediate</h3>
+                    <p class="text-xs text-slate-500">Muscles & Nerves</p>
                 </div>
                 <div class="h-12 w-12 rounded-full bg-gray-200 text-gray-400 flex items-center justify-center text-xl">
-                    <i class="fas fa-lock locked-icon"></i>
+                    <i class="fas fa-lock"></i>
                 </div>
-            </div>
-            <div class="w-full bg-gray-100 rounded-full h-1.5 mt-4"></div>
-            <div class="absolute inset-0 flex items-center justify-center bg-white/50 backdrop-blur-[1px]">
-                <span class="bg-slate-800 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">Pass Level 1 to Unlock</span>
             </div>
         </div>
 
@@ -77,77 +60,45 @@
             <div class="flex justify-between items-center">
                 <div>
                     <span class="bg-gray-100 text-gray-500 text-[10px] font-bold px-2 py-1 rounded uppercase">Final Exam</span>
-                    <h3 class="font-bold text-xl text-slate-800 mt-1">Advanced</h3>
-                    <p class="text-xs text-slate-500 mt-1">Clinical Anatomy • 50 Questions</p>
+                    <h3 class="font-bold text-xl text-slate-800">Advanced</h3>
+                    <p class="text-xs text-slate-500">Clinical Anatomy</p>
                 </div>
                 <div class="h-12 w-12 rounded-full bg-gray-200 text-gray-400 flex items-center justify-center text-xl">
-                    <i class="fas fa-lock locked-icon"></i>
+                    <i class="fas fa-lock"></i>
                 </div>
             </div>
-            <div class="w-full bg-gray-100 rounded-full h-1.5 mt-4"></div>
-             <div class="absolute inset-0 flex items-center justify-center bg-white/50 backdrop-blur-[1px]">
-                <span class="bg-slate-800 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">Pass Level 2 to Unlock</span>
-            </div>
         </div>
-
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-
-        // Firebase Config (Your Keys)
-        const firebaseConfig = { apiKey: "AIzaSyCrF_INEtL9bZKAoDPYCuTaVMRWGAdbcew", authDomain: "splendids-academy-v2.firebaseapp.com", projectId: "splendids-academy-v2", storageBucket: "splendids-academy-v2.firebasestorage.app", messagingSenderId: "573697150601", appId: "1:573697150601:web:74c556c85b6be053018058", measurementId: "G-VVDT1PMHNX" };
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-
-        // Security
-        onAuthStateChanged(auth, (user) => {
-            if (!user) window.location.href = "index.html";
-            else checkProgress(); // Check locks on load
-        });
-
-        // --- THE UNLOCKING LOGIC ---
-        window.checkProgress = function() {
-            // Check LocalStorage for saved progress (e.g., "ANA 211_beginner_passed")
+    <script>
+        // Check Progress when page loads
+        window.onload = function() {
             const passedLevel1 = localStorage.getItem('ANA 211_beginner_passed');
             const passedLevel2 = localStorage.getItem('ANA 211_intermediate_passed');
 
-            if(passedLevel1 === 'true') {
-                unlockCard('level-intermediate', 'intermediate');
-            }
-            if(passedLevel2 === 'true') {
-                unlockCard('level-advanced', 'advanced');
-            }
-        }
+            if(passedLevel1 === 'true') unlockCard('level-intermediate', 'intermediate');
+            if(passedLevel2 === 'true') unlockCard('level-advanced', 'advanced');
+        };
 
         function unlockCard(id, levelName) {
             const card = document.getElementById(id);
-            if(!card) return;
-
             card.classList.remove('locked-card', 'border-gray-300');
-            card.classList.add('border-teal-500', 'hover:scale-105', 'transition-transform');
+            card.classList.add('border-teal-500');
             
-            // Remove Lock Icon
-            const iconContainer = card.querySelector('.rounded-full');
-            iconContainer.classList.remove('bg-gray-200', 'text-gray-400');
-            iconContainer.classList.add('bg-teal-600', 'text-white', 'shadow-lg');
-            iconContainer.innerHTML = '<i class="fas fa-play ml-1"></i>';
-
-            // Remove Overlay
-            const overlay = card.querySelector('.absolute.inset-0.flex');
-            if(overlay) overlay.remove();
-
-            // Add Click Action
+            // Add click action
             const btn = document.createElement('button');
             btn.className = "absolute inset-0 w-full h-full cursor-pointer opacity-0";
             btn.onclick = function() { startQuiz(levelName); };
             card.appendChild(btn);
+            
+            // Update Icon (Simple visual fix)
+            card.querySelector('.fa-lock').className = "fas fa-play ml-1";
+            card.querySelector('.rounded-full').classList.add('bg-teal-600', 'text-white');
+            card.querySelector('.rounded-full').classList.remove('bg-gray-200', 'text-gray-400');
         }
 
-        // Navigation to the actual Quiz
-        window.startQuiz = function(levelName) {
-            // We force "ANA 211" for now. Later we can make this dynamic.
+        function startQuiz(levelName) {
+            // SEND THE DATA TO THE QUIZ RUNNER
             window.location.href = `quiz-runner.html?course=ANA 211&level=${levelName}`;
         }
     </script>
