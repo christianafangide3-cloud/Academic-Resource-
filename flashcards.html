@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcard Blitz | Splendid's Academy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f0f9ff; }
+
+        /* FLIP CARD EFFECT */
+        .perspective { perspective: 1000px; }
+        .card-inner {
+            position: relative; width: 100%; height: 100%;
+            transition: transform 0.6s; transform-style: preserve-3d;
+        }
+        .flipped .card-inner { transform: rotateY(180deg); }
+        .card-front, .card-back {
+            position: absolute; width: 100%; height: 100%;
+            backface-visibility: hidden; display: flex; align-items: center; justify-content: center;
+            border-radius: 1.5rem; padding: 2rem; text-align: center;
+            box-shadow: 0 10px 30px -5px rgba(0,0,0,0.1);
+        }
+        .card-front { background: white; color: #1e293b; }
+        .card-back { background: #0ea5e9; color: white; transform: rotateY(180deg); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <nav class="bg-sky-900 text-white p-4 flex justify-between items-center shadow-lg">
+        <a href="dashboard.html"><i class="fas fa-arrow-left"></i></a>
+        <h1 class="font-bold">⚡ Flashcard Blitz</h1>
+        <div class="text-xs bg-sky-700 px-2 py-1 rounded">PHS 211</div>
+    </nav>
+
+    <div class="flex-1 flex flex-col items-center justify-center p-6 perspective">
+        
+        <div class="w-full max-w-sm h-80 cursor-pointer group" onclick="flipCard()" id="flashcard">
+            <div class="card-inner">
+                <div class="card-front border-2 border-slate-200">
+                    <div>
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 block">Question</span>
+                        <h2 id="card-q" class="text-2xl font-bold">Tap to Start</h2>
+                        <p class="text-xs text-slate-300 mt-8">(Tap to flip)</p>
+                    </div>
+                </div>
+                <div class="card-back border-2 border-sky-600">
+                    <div>
+                        <span class="text-xs font-bold text-sky-200 uppercase tracking-widest mb-4 block">Answer</span>
+                        <h2 id="card-a" class="text-2xl font-bold">Loading...</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-8 flex gap-4">
+            <button onclick="nextCard()" class="bg-red-100 text-red-600 px-6 py-3 rounded-xl font-bold hover:bg-red-200 transition"><i class="fas fa-times"></i> Forgot</button>
+            <button onclick="nextCard()" class="bg-green-100 text-green-600 px-6 py-3 rounded-xl font-bold hover:bg-green-200 transition"><i class="fas fa-check"></i> Got it</button>
+        </div>
+        
+    </div>
+
+    <script>
+        const deck = [
+            { q: "Resting Membrane Potential of a neuron?", a: "-70 mV" },
+            { q: "Primary ion OUTSIDE the cell?", a: "Sodium (Na+)" },
+            { q: "Primary ion INSIDE the cell?", a: "Potassium (K+)" },
+            { q: "What is Active Transport?", a: "Movement against gradient requiring ATP" },
+            { q: "Life span of a RBC?", a: "120 Days" },
+            { q: "Where are RBCs destroyed?", a: "Spleen" },
+            { q: "Volume of blood in adult male?", a: "5 - 6 Liters" }
+        ];
+
+        let index = 0;
+
+        function flipCard() {
+            document.getElementById('flashcard').classList.toggle('flipped');
+        }
+
+        function nextCard() {
+            // Reset Flip
+            document.getElementById('flashcard').classList.remove('flipped');
+            
+            // Wait for flip back, then change text
+            setTimeout(() => {
+                index = (index + 1) % deck.length; // Loop forever
+                document.getElementById('card-q').textContent = deck[index].q;
+                document.getElementById('card-a').textContent = deck[index].a;
+            }, 300);
+        }
+
+        // Init
+        window.onload = () => {
+            document.getElementById('card-q').textContent = deck[0].q;
+            document.getElementById('card-a').textContent = deck[0].a;
+        };
+    </script>
+</body>
+</html>
