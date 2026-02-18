@@ -10,27 +10,25 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Share+Tech+Mono&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
         
-        /* ID Card Hologram Effect */
+        /* HOLOGRAPHIC ID CARD */
         .id-card {
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            position: relative;
-            overflow: hidden;
+            position: relative; overflow: hidden;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
         }
+        /* The Shiny "Hologram" Effect */
         .id-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%;
-            width: 50%; height: 100%;
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
             background: linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent);
-            transform: skewX(-25deg);
-            animation: shine 6s infinite;
+            transform: rotate(45deg); animation: shimmer 3s infinite linear; pointer-events: none;
         }
-        @keyframes shine {
-            0% { left: -100%; }
-            20% { left: 200%; }
-            100% { left: 200%; }
-        }
+        @keyframes shimmer { 0% { transform: translateX(-100%) rotate(45deg); } 100% { transform: translateX(100%) rotate(45deg); } }
+        
         .mono-font { font-family: 'Share Tech Mono', monospace; }
+        
+        /* Upload Button Hidden but Clickable */
+        .photo-upload { cursor: pointer; transition: all 0.3s; }
+        .photo-upload:hover { opacity: 0.8; }
     </style>
 </head>
 <body class="min-h-screen pb-20">
@@ -38,71 +36,87 @@
     <nav class="bg-slate-900 text-white p-4 sticky top-0 z-50 flex justify-between items-center shadow-md">
         <div class="flex items-center gap-3">
             <a href="dashboard.html" class="text-slate-400 hover:text-white"><i class="fas fa-arrow-left"></i></a>
-            <h1 class="font-bold text-lg">Student Profile</h1>
+            <h1 class="font-bold text-lg">Digital ID Portal</h1>
         </div>
         <button onclick="logout()" class="text-xs bg-red-600 px-3 py-1 rounded font-bold hover:bg-red-700">LOG OUT</button>
     </nav>
 
     <div class="max-w-md mx-auto p-6">
         
-        <div class="id-card rounded-2xl shadow-2xl p-6 text-white mb-8 border border-slate-700 relative transform transition hover:scale-[1.02]">
-            <div class="absolute right-4 top-4 text-6xl opacity-10">🩺</div>
+        <div class="text-center mb-6">
+            <p class="text-xs font-bold text-emerald-600 uppercase tracking-widest animate-pulse">● Live Verification System</p>
+            <h2 class="text-2xl font-extrabold text-slate-800">Student Identity Card</h2>
+            <p class="text-slate-500 text-xs mt-1">Tap the photo box to upload your passport.</p>
+        </div>
+
+        <div class="id-card rounded-2xl p-6 text-white mb-8 border border-slate-700 relative transform transition hover:scale-[1.01]" id="download-area">
             
-            <div class="flex justify-between items-start mb-6">
-                <div>
-                    <h2 class="text-xs text-emerald-400 font-bold uppercase tracking-widest mb-1">Official Student ID</h2>
-                    <h1 class="text-xl font-extrabold tracking-tight">Splendid's Academy</h1>
+            <div class="absolute right-2 top-2 text-8xl opacity-5"><i class="fas fa-university"></i></div>
+            
+            <div class="flex justify-between items-start mb-6 relative z-10">
+                <div class="flex items-center gap-2">
+                    <div class="h-8 w-8 bg-emerald-500 rounded-lg flex items-center justify-center font-bold text-white shadow-lg shadow-emerald-500/50">S</div>
+                    <div>
+                        <h2 class="text-[10px] text-emerald-400 font-bold uppercase tracking-widest">Splendid's Academy</h2>
+                        <h1 class="text-lg font-extrabold tracking-tight leading-none">OFFICIAL PASS</h1>
+                    </div>
                 </div>
-                <div class="h-10 w-10 bg-white/10 rounded-full flex items-center justify-center border border-white/20">
-                    <i class="fas fa-university text-emerald-400"></i>
-                </div>
+                <div class="bg-white/10 px-2 py-1 rounded text-[10px] font-bold border border-white/20">2026 SESSION</div>
             </div>
 
-            <div class="flex items-center gap-4">
-                <div class="h-20 w-20 rounded-xl bg-slate-700 border-2 border-emerald-500 overflow-hidden flex items-center justify-center">
-                    <i class="fas fa-user text-4xl text-slate-500"></i>
+            <div class="flex items-center gap-5 relative z-10">
+                <div class="relative group">
+                    <label for="file-upload" class="photo-upload h-24 w-24 rounded-xl bg-slate-800 border-2 border-dashed border-emerald-500/50 flex items-center justify-center overflow-hidden shadow-inner">
+                        <img id="profile-pic" src="" class="h-full w-full object-cover hidden">
+                        <div id="upload-placeholder" class="text-center">
+                            <i class="fas fa-camera text-slate-500 text-xl mb-1"></i>
+                            <p class="text-[8px] text-slate-500 uppercase font-bold">Tap to Upload</p>
+                        </div>
+                    </label>
+                    <input type="file" id="file-upload" accept="image/*" class="hidden" onchange="loadPhoto(event)">
                 </div>
+
                 <div>
-                    <p class="text-[10px] text-slate-400 uppercase">Student Name</p>
-                    <h3 id="card-name" class="font-bold text-lg leading-tight mb-2">Loading...</h3>
+                    <p class="text-[10px] text-slate-400 uppercase font-bold mb-0.5">Student Name</p>
+                    <h3 id="card-name" class="font-bold text-xl leading-tight mb-2 text-white">Loading...</h3>
                     
-                    <p class="text-[10px] text-slate-400 uppercase">ID Status</p>
-                    <span class="bg-emerald-500/20 text-emerald-300 text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-500/50">VERIFIED • V2.0</span>
+                    <p class="text-[10px] text-slate-400 uppercase font-bold mb-0.5">Reg Number</p>
+                    <p id="card-reg" class="mono-font text-sm text-emerald-400 tracking-widest">GEN-000-000</p>
                 </div>
             </div>
 
-            <div class="mt-6 border-t border-white/10 pt-4 flex justify-between items-end">
+            <div class="mt-6 pt-4 border-t border-white/10 flex justify-between items-end relative z-10">
                 <div>
-                    <p class="text-[10px] text-slate-400 uppercase">Department</p>
-                    <p class="font-bold text-sm">Medical Physiology</p>
+                    <p class="text-[10px] text-slate-400 uppercase font-bold">Department</p>
+                    <p class="font-bold text-xs">Medical Physiology</p>
                 </div>
                 <div class="text-right">
-                    <div class="h-6 w-24 bg-white mb-1"></div> <p class="mono-font text-xs tracking-widest text-slate-400">8829-192-33</p>
+                    <div class="flex gap-0.5 h-6 justify-end opacity-80">
+                        <div class="w-1 bg-white"></div><div class="w-0.5 bg-white"></div><div class="w-2 bg-white"></div><div class="w-1 bg-white"></div><div class="w-3 bg-white"></div>
+                        <div class="w-1 bg-white"></div><div class="w-2 bg-white"></div><div class="w-1 bg-white"></div>
+                    </div>
+                    <p class="text-[8px] text-slate-500 uppercase mt-1">Authorized Access Only</p>
                 </div>
             </div>
         </div>
 
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
             <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
-                <i class="fas fa-cog text-slate-400"></i> Account Settings
+                <i class="fas fa-sliders-h text-slate-400"></i> Card Settings
             </h3>
             
             <div class="space-y-4">
                 <div>
-                    <label class="text-xs font-bold text-slate-400 uppercase">Full Name</label>
-                    <input type="text" id="input-name" class="w-full p-3 bg-slate-50 rounded-lg border border-slate-200 text-sm font-bold text-slate-700" readonly>
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-slate-400 uppercase">Email Address</label>
-                    <input type="text" id="input-email" class="w-full p-3 bg-slate-50 rounded-lg border border-slate-200 text-sm font-bold text-slate-700" readonly>
+                    <label class="text-xs font-bold text-slate-400 uppercase">Target CGPA Goal</label>
+                    <div class="flex items-center gap-2">
+                        <input type="number" id="target-goal" placeholder="5.00" class="flex-1 p-3 bg-slate-50 rounded-lg border border-slate-200 text-sm font-bold">
+                        <button onclick="saveGoal()" class="bg-slate-900 text-white px-4 py-3 rounded-lg font-bold text-sm hover:bg-slate-800">Save</button>
+                    </div>
+                    <p class="text-[10px] text-emerald-600 mt-2"><i class="fas fa-info-circle"></i> This updates your Dashboard tracker.</p>
                 </div>
                 
                 <div class="pt-4 border-t border-slate-100">
-                    <p class="text-xs text-slate-500 mb-3">Target CGPA Goal</p>
-                    <div class="flex items-center gap-2">
-                        <input type="number" id="target-goal" placeholder="5.00" class="flex-1 p-3 bg-slate-50 rounded-lg border border-slate-200 text-sm font-bold">
-                        <button onclick="saveGoal()" class="bg-slate-900 text-white px-4 py-3 rounded-lg font-bold text-sm">Save</button>
-                    </div>
+                    <button onclick="resetPhoto()" class="text-xs text-red-500 font-bold hover:underline">Remove Photo</button>
                 </div>
             </div>
         </div>
@@ -113,43 +127,88 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-        // CONFIG (Your Keys)
+        // CONFIG
         const firebaseConfig = { apiKey: "AIzaSyCrF_INEtL9bZKAoDPYCuTaVMRWGAdbcew", authDomain: "splendids-academy-v2.firebaseapp.com", projectId: "splendids-academy-v2", storageBucket: "splendids-academy-v2.firebasestorage.app", messagingSenderId: "573697150601", appId: "1:573697150601:web:74c556c85b6be053018058", measurementId: "G-VVDT1PMHNX" };
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        // 1. POPULATE DATA
+        // 1. LOAD DATA
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 const name = user.displayName || "Student";
-                const email = user.email;
-
-                // Update ID Card
+                
+                // Set Name
                 document.getElementById('card-name').textContent = name;
                 
-                // Update Form
-                document.getElementById('input-name').value = name;
-                document.getElementById('input-email').value = email;
+                // Generate Fake Reg No based on UID (First 5 chars)
+                const fakeReg = "UNI-" + user.uid.substring(0, 5).toUpperCase();
+                document.getElementById('card-reg').textContent = fakeReg;
                 
-                // Load saved goal
+                // Load Saved Goal
                 const savedGoal = localStorage.getItem('my_target_cgpa');
                 if(savedGoal) document.getElementById('target-goal').value = savedGoal;
+
+                // Load Saved Photo
+                const savedPhoto = localStorage.getItem('my_passport_photo');
+                if(savedPhoto) {
+                    document.getElementById('profile-pic').src = savedPhoto;
+                    document.getElementById('profile-pic').classList.remove('hidden');
+                    document.getElementById('upload-placeholder').classList.add('hidden');
+                }
             } else {
                 window.location.href = "index.html";
             }
         });
 
-        // 2. SAVE FUNCTION
+        // 2. SAVE GOAL
         window.saveGoal = function() {
             const goal = document.getElementById('target-goal').value;
             localStorage.setItem('my_target_cgpa', goal);
-            alert("Goal Updated! 🎯");
+            alert("Goal Saved! Check your Dashboard.");
         }
 
-        // 3. LOGOUT
+        // 3. PHOTO UPLOAD LOGIC (Magic 🪄)
+        window.loadPhoto = function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                // Limit size (2MB)
+                if(file.size > 2000000) {
+                    alert("Photo too large! Please use a smaller image (under 2MB).");
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const base64String = e.target.result;
+                    
+                    // Show it
+                    document.getElementById('profile-pic').src = base64String;
+                    document.getElementById('profile-pic').classList.remove('hidden');
+                    document.getElementById('upload-placeholder').classList.add('hidden');
+
+                    // Save to Browser Memory
+                    try {
+                        localStorage.setItem('my_passport_photo', base64String);
+                    } catch (err) {
+                        alert("Storage full! Image not saved permanently.");
+                    }
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // 4. RESET PHOTO
+        window.resetPhoto = function() {
+            if(confirm("Remove ID photo?")) {
+                localStorage.removeItem('my_passport_photo');
+                location.reload();
+            }
+        }
+
+        // 5. LOGOUT
         window.logout = function() {
             signOut(auth).then(() => { window.location.href = "index.html"; });
         }
     </script>
 </body>
-                                                          </html>
+    </html>
