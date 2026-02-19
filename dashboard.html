@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@500&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
         
         /* Sidebar Animation */
@@ -21,6 +21,11 @@
         /* Card Hover Effect */
         .hover-card { transition: all 0.2s; }
         .hover-card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px -5px rgba(0,0,0,0.1); }
+
+        /* Exam Dark Card */
+        .exam-card { background: linear-gradient(145deg, #0f172a, #1e293b); flex: 0 0 auto; width: 260px; scroll-snap-align: start; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="min-h-screen">
@@ -120,6 +125,23 @@
         </div>
 
         <div class="mb-8">
+            <div class="flex justify-between items-end mb-4">
+                <h3 class="font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fas fa-calendar-alt text-indigo-500"></i> Exam Command Center
+                </h3>
+                <span class="text-[10px] bg-red-100 text-red-600 font-bold px-2 py-1 rounded uppercase animate-pulse">Battle Readiness</span>
+            </div>
+
+            <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-xl mb-4 text-sm shadow-sm">
+                <p class="font-bold text-red-800 mb-1"><i class="fas fa-exclamation-triangle"></i> Strategic Alert: The Core Week</p>
+                <p class="text-red-700 text-xs">March 3rd - March 5th is your heaviest impact zone. Enter this window with 100% mastery. Adjust your circadian rhythm now for 8 AM readiness.</p>
+            </div>
+
+            <div class="flex overflow-x-auto gap-4 pb-4 scrollbar-hide snap-x" id="dashboard-timetable">
+                </div>
+        </div>
+
+        <div class="mb-8">
             <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
                 <i class="fas fa-fire text-orange-500"></i> The Daily Grind
             </h3>
@@ -199,28 +221,28 @@
             const feed = document.getElementById('activity-feed');
             let hasActivity = false;
 
-            const checks = [
-                { key: 'ANA 211_beginner_passed', name: 'ANA 211: Beginner Level' },
-                { key: 'ANA 211_intermediate_passed', name: 'ANA 211: Intermediate Level' },
-                { key: 'ANA 211_advanced_passed', name: 'ANA 211: Advanced Level' }
-            ];
+            const courses = ["ANA 211", "ANA 213", "PHS 211", "PHS 212", "PHS 213", "PHS 214", "MBC 211", "GST 212"];
+            const levels = ["beginner", "intermediate", "advanced"];
+            
+            courses.forEach(course => {
+                levels.forEach(level => {
+                    const key = `${course}_${level}_passed`;
+                    if(localStorage.getItem(key) === 'true') {
+                        passedCount++;
+                        if(!hasActivity) { feed.innerHTML = ''; hasActivity = true; }
 
-            checks.forEach(item => {
-                if(localStorage.getItem(item.key) === 'true') {
-                    passedCount++;
-                    if(!hasActivity) { feed.innerHTML = ''; hasActivity = true; }
-
-                    const div = document.createElement('div');
-                    div.className = "bg-white p-4 rounded-xl shadow-sm border-l-4 border-emerald-500 flex justify-between items-center animate-fade-in";
-                    div.innerHTML = `
-                        <div>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase">COMPLETED</p>
-                            <h4 class="font-bold text-slate-800 text-sm">${item.name}</h4>
-                        </div>
-                        <i class="fas fa-check-circle text-emerald-500 text-xl"></i>
-                    `;
-                    feed.appendChild(div);
-                }
+                        const div = document.createElement('div');
+                        div.className = "bg-white p-4 rounded-xl shadow-sm border-l-4 border-emerald-500 flex justify-between items-center animate-fade-in";
+                        div.innerHTML = `
+                            <div>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase">COMPLETED</p>
+                                <h4 class="font-bold text-slate-800 text-sm">${course}: ${level.charAt(0).toUpperCase() + level.slice(1)}</h4>
+                            </div>
+                            <i class="fas fa-check-circle text-emerald-500 text-xl"></i>
+                        `;
+                        feed.appendChild(div);
+                    }
+                });
             });
 
             document.getElementById('stat-passed').textContent = passedCount;
@@ -245,6 +267,45 @@
                 overlay.classList.add('hidden');
             }
         }
+
+        // Render Timetable
+        const exams = [
+            { d: "MAR 03", t: "11:00 AM", c: "PHS 211", v: "Annex", color: "border-t-red-500", glow: "text-red-400" },
+            { d: "MAR 04", t: "11:00 AM", c: "MBC 211", v: "Annex", color: "border-t-blue-500", glow: "text-blue-400" },
+            { d: "MAR 05", t: "08:00 AM", c: "ANA 211", v: "Annex", color: "border-t-emerald-500", glow: "text-emerald-400" },
+            { d: "MAR 09", t: "08:00 AM", c: "PHS 212", v: "Annex", color: "border-t-amber-500", glow: "text-amber-400" },
+            { d: "MAR 12", t: "08:00 AM", c: "PHS 213", v: "Annex", color: "border-t-purple-500", glow: "text-purple-400" },
+            { d: "MAR 13", t: "08:00 AM", c: "PHS 214", v: "Annex", color: "border-t-pink-500", glow: "text-pink-400" },
+            { d: "MAR 20", t: "08:00 AM", c: "ANA 213", v: "Annex", color: "border-t-cyan-500", glow: "text-cyan-400" },
+            { d: "TBD", t: "Unspecified", c: "GST 212", v: "Main Campus", color: "border-t-slate-500", glow: "text-slate-400" }
+        ];
+
+        const timetableContainer = document.getElementById('dashboard-timetable');
+        exams.forEach(ex => {
+            const card = document.createElement('div');
+            card.className = `exam-card p-5 rounded-2xl border-t-4 ${ex.color} text-white shadow-lg relative group overflow-hidden`;
+            
+            // Hover glow effect
+            card.innerHTML = `
+                <div class="absolute top-0 right-0 -mr-4 -mt-4 w-20 h-20 bg-white opacity-5 rounded-full blur-xl group-hover:opacity-10 transition-opacity"></div>
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h4 class="font-black text-2xl ${ex.glow}">${ex.c}</h4>
+                        <p class="text-xs text-slate-400 font-mono mt-1"><i class="far fa-clock"></i> ${ex.t}</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="bg-slate-800 text-slate-300 text-[10px] font-bold px-2 py-1 rounded">${ex.d}</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 text-sm text-slate-300 mb-6">
+                    <i class="fas fa-map-marker-alt opacity-50"></i> ${ex.v}
+                </div>
+                <button onclick="window.location.href='cbt.html?course=${encodeURIComponent(ex.c)}'" class="w-full bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold py-3 rounded-xl transition-colors border border-slate-600 flex justify-center items-center gap-2">
+                    Start Assessment <i class="fas fa-arrow-right"></i>
+                </button>
+            `;
+            timetableContainer.appendChild(card);
+        });
     </script>
 </body>
-                        </html>
+    </html>
