@@ -19,13 +19,11 @@
         .glass-nav { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid #e2e8f0; }
         
         /* Card Hover Effect */
-        .hover-card { transition: all 0.2s; }
-        .hover-card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px -5px rgba(0,0,0,0.1); }
+        .hover-card { transition: all 0.3s; }
+        .hover-card:hover { transform: translateY(-4px); box-shadow: 0 15px 30px -5px rgba(0,0,0,0.1); }
 
-        /* Exam Dark Card */
-        .exam-card { background: linear-gradient(145deg, #0f172a, #1e293b); flex: 0 0 auto; width: 260px; scroll-snap-align: start; }
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        /* Timeline styling */
+        .timeline-line { position: absolute; left: 1.25rem; top: 0; bottom: 0; width: 2px; background: #e2e8f0; z-index: 0; }
     </style>
 </head>
 <body class="min-h-screen">
@@ -100,83 +98,116 @@
         </div>
     </aside>
 
-    <main class="pt-24 px-4 pb-12 max-w-4xl mx-auto">
+    <main class="pt-24 px-4 pb-12 max-w-4xl mx-auto space-y-10">
         
-        <div class="bg-gradient-to-r from-emerald-600 to-teal-800 rounded-3xl p-8 text-white shadow-xl mb-8 relative overflow-hidden">
+        <div class="bg-gradient-to-r from-emerald-700 to-teal-900 rounded-3xl p-8 text-white shadow-xl relative overflow-hidden">
             <div class="absolute right-0 top-0 h-full w-1/2 bg-white/5 skew-x-12"></div>
+            <div class="absolute -bottom-10 -right-10 text-9xl opacity-10"><i class="fas fa-graduation-cap"></i></div>
             <div class="relative z-10">
                 <h2 id="welcome-msg" class="text-3xl font-extrabold mb-2">Welcome Back!</h2>
-                <p class="text-emerald-100 text-sm max-w-md">Your academic journey continues here. Pick up where you left off.</p>
+                <p class="text-emerald-100 text-sm max-w-md leading-relaxed">The 200-Level battleground requires strategic preparation. Open your menu to access the CBT Vaults and GP Forecaster.</p>
                 <div class="mt-6 flex gap-3">
-                    <button onclick="toggleSidebar()" class="bg-white text-emerald-800 px-5 py-2 rounded-lg font-bold text-sm hover:bg-emerald-50 transition">Open Menu</button>
+                    <button onclick="toggleSidebar()" class="bg-white text-emerald-900 px-6 py-2.5 rounded-lg font-bold text-sm hover:bg-emerald-50 transition shadow-lg">Open Menu</button>
                 </div>
             </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-4 mb-8">
-            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
-                <div class="text-[10px] font-bold text-slate-400 uppercase mb-1">Modules Passed</div>
-                <div class="text-3xl font-extrabold text-slate-800" id="stat-passed">0</div>
+        <div class="grid grid-cols-2 gap-4">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover-card">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Modules Passed</div>
+                        <div class="text-4xl font-extrabold text-slate-800" id="stat-passed">0</div>
+                    </div>
+                    <div class="h-10 w-10 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center"><i class="fas fa-check-double"></i></div>
+                </div>
             </div>
-            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
-                <div class="text-[10px] font-bold text-slate-400 uppercase mb-1">Target CGPA</div>
-                <div class="text-3xl font-extrabold text-emerald-600" id="stat-target">-.-</div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover-card">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Target CGPA</div>
+                        <div class="text-4xl font-extrabold text-emerald-600" id="stat-target">-.-</div>
+                    </div>
+                    <div class="h-10 w-10 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center"><i class="fas fa-bullseye"></i></div>
+                </div>
             </div>
         </div>
 
-        <div class="mb-8">
-            <div class="flex justify-between items-end mb-4">
-                <h3 class="font-bold text-slate-800 flex items-center gap-2">
-                    <i class="fas fa-calendar-alt text-indigo-500"></i> Exam Command Center
+        <div>
+            <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2 text-lg">
+                <i class="fas fa-satellite-dish text-blue-500"></i> Academic Intelligence
+            </h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-slate-900 text-white rounded-2xl p-6 relative overflow-hidden shadow-lg hover-card">
+                    <div class="absolute top-0 right-0 bg-blue-600 text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase tracking-widest">System Update</div>
+                    <h4 class="font-bold text-lg mb-2 mt-2">V2.0 is Officially Live 🚀</h4>
+                    <p class="text-sm text-slate-400 leading-relaxed mb-4">The new CBT engine, Flashcard Blitz, and Digital ID systems are now operational. Clinical Rounds will unlock next week.</p>
+                    <a href="profile.html" class="text-xs font-bold text-blue-400 hover:text-blue-300">Set up your ID Card →</a>
+                </div>
+
+                <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-6 shadow-sm hover-card">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="h-8 w-8 bg-indigo-200 text-indigo-700 rounded-full flex items-center justify-center"><i class="fas fa-brain"></i></div>
+                        <h4 class="font-bold text-indigo-900">Director's Strategy</h4>
+                    </div>
+                    <p class="text-sm text-indigo-800/80 leading-relaxed font-medium">"Five of your exams begin at exactly <span class="font-bold text-indigo-900 bg-indigo-200 px-1 rounded">08:00 AM</span>. You must align your circadian rhythm now. Stop late-night cramming. Train your brain to peak at dawn."</p>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <div class="flex justify-between items-end mb-6">
+                <h3 class="font-bold text-slate-800 flex items-center gap-2 text-lg">
+                    <i class="fas fa-crosshairs text-red-500"></i> Exam Command Center
                 </h3>
-                <span class="text-[10px] bg-red-100 text-red-600 font-bold px-2 py-1 rounded uppercase animate-pulse">Battle Readiness</span>
+                <span class="text-[10px] bg-red-100 text-red-600 font-bold px-2 py-1 rounded uppercase tracking-widest border border-red-200 animate-pulse">Live Schedule</span>
             </div>
 
-            <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-xl mb-4 text-sm shadow-sm">
-                <p class="font-bold text-red-800 mb-1"><i class="fas fa-exclamation-triangle"></i> Strategic Alert: The Core Week</p>
-                <p class="text-red-700 text-xs">March 3rd - March 5th is your heaviest impact zone. Enter this window with 100% mastery. Adjust your circadian rhythm now for 8 AM readiness.</p>
+            <div class="bg-white rounded-3xl p-6 md:p-8 shadow-xl border border-slate-100 relative">
+                <div class="timeline-line hidden md:block"></div>
+                
+                <div class="space-y-6 relative z-10" id="vertical-timetable">
+                    </div>
             </div>
-
-            <div class="flex overflow-x-auto gap-4 pb-4 scrollbar-hide snap-x" id="dashboard-timetable">
-                </div>
         </div>
 
-        <div class="mb-8">
-            <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
-                <i class="fas fa-fire text-orange-500"></i> The Daily Grind
+        <div>
+            <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2 text-lg">
+                <i class="fas fa-bolt text-yellow-500"></i> The Daily Grind
             </h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <a href="flashcards.html" class="hover-card bg-gradient-to-br from-yellow-50 to-orange-50 border border-yellow-200 p-5 rounded-2xl flex items-center gap-4">
-                    <div class="h-12 w-12 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center text-xl">
-                        <i class="fas fa-bolt"></i>
+                <a href="flashcards.html" class="hover-card bg-white border border-slate-200 p-5 rounded-2xl flex items-center gap-4 shadow-sm">
+                    <div class="h-12 w-12 rounded-xl bg-yellow-100 text-yellow-600 flex items-center justify-center text-xl transform -rotate-6">
+                        <i class="fas fa-clone"></i>
                     </div>
                     <div>
                         <h4 class="font-bold text-slate-800">Flashcard Blitz</h4>
-                        <p class="text-xs text-slate-500">Quick revision before exams.</p>
+                        <p class="text-xs text-slate-500">Rapid-fire memory testing.</p>
                     </div>
                 </a>
                 
-                <a href="leaderboard.html" class="hover-card bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-5 rounded-2xl flex items-center gap-4 text-white">
-                    <div class="h-12 w-12 rounded-full bg-slate-700 text-yellow-400 flex items-center justify-center text-xl">
+                <a href="leaderboard.html" class="hover-card bg-white border border-slate-200 p-5 rounded-2xl flex items-center gap-4 shadow-sm">
+                    <div class="h-12 w-12 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center text-xl transform rotate-6">
                         <i class="fas fa-trophy"></i>
                     </div>
                     <div>
-                        <h4 class="font-bold">Hall of Fame</h4>
-                        <p class="text-xs text-slate-400">See where you stand.</p>
+                        <h4 class="font-bold text-slate-800">Hall of Fame</h4>
+                        <p class="text-xs text-slate-500">Check your global ranking.</p>
                     </div>
                 </a>
             </div>
         </div>
 
-        <div class="mb-8">
-            <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
+        <div>
+            <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2 text-lg">
                 <i class="fas fa-history text-slate-400"></i> Recent Activity
             </h3>
             
             <div id="activity-feed" class="space-y-3">
-                <div class="bg-slate-50 p-6 rounded-2xl text-center border border-slate-200 border-dashed">
-                    <div class="text-slate-300 text-3xl mb-2"><i class="fas fa-wind"></i></div>
-                    <p class="text-slate-500 text-sm font-medium">Nothing yet. Go pass a quiz!</p>
+                <div class="bg-slate-50 p-8 rounded-2xl text-center border border-slate-200 border-dashed">
+                    <div class="text-slate-300 text-4xl mb-3"><i class="fas fa-wind"></i></div>
+                    <p class="text-slate-500 text-sm font-medium">Your activity log is empty. Hit the books!</p>
                 </div>
             </div>
         </div>
@@ -212,11 +243,9 @@
         });
 
         function loadStats() {
-            // Check CGPA Target
             const target = localStorage.getItem('my_target_cgpa');
             if(target) document.getElementById('stat-target').textContent = target;
 
-            // Check Quiz Progress
             let passedCount = 0;
             const feed = document.getElementById('activity-feed');
             let hasActivity = false;
@@ -235,7 +264,7 @@
                         div.className = "bg-white p-4 rounded-xl shadow-sm border-l-4 border-emerald-500 flex justify-between items-center animate-fade-in";
                         div.innerHTML = `
                             <div>
-                                <p class="text-[10px] font-bold text-slate-400 uppercase">COMPLETED</p>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">COMPLETED</p>
                                 <h4 class="font-bold text-slate-800 text-sm">${course}: ${level.charAt(0).toUpperCase() + level.slice(1)}</h4>
                             </div>
                             <i class="fas fa-check-circle text-emerald-500 text-xl"></i>
@@ -248,9 +277,7 @@
             document.getElementById('stat-passed').textContent = passedCount;
         }
 
-        window.logout = function() {
-            signOut(auth).then(() => { window.location.href = "index.html"; });
-        }
+        window.logout = function() { signOut(auth).then(() => { window.location.href = "index.html"; }); }
     </script>
 
     <script>
@@ -268,44 +295,54 @@
             }
         }
 
-        // Render Timetable
+        // Render Vertical Timetable
         const exams = [
-            { d: "MAR 03", t: "11:00 AM", c: "PHS 211", v: "Annex", color: "border-t-red-500", glow: "text-red-400" },
-            { d: "MAR 04", t: "11:00 AM", c: "MBC 211", v: "Annex", color: "border-t-blue-500", glow: "text-blue-400" },
-            { d: "MAR 05", t: "08:00 AM", c: "ANA 211", v: "Annex", color: "border-t-emerald-500", glow: "text-emerald-400" },
-            { d: "MAR 09", t: "08:00 AM", c: "PHS 212", v: "Annex", color: "border-t-amber-500", glow: "text-amber-400" },
-            { d: "MAR 12", t: "08:00 AM", c: "PHS 213", v: "Annex", color: "border-t-purple-500", glow: "text-purple-400" },
-            { d: "MAR 13", t: "08:00 AM", c: "PHS 214", v: "Annex", color: "border-t-pink-500", glow: "text-pink-400" },
-            { d: "MAR 20", t: "08:00 AM", c: "ANA 213", v: "Annex", color: "border-t-cyan-500", glow: "text-cyan-400" },
-            { d: "TBD", t: "Unspecified", c: "GST 212", v: "Main Campus", color: "border-t-slate-500", glow: "text-slate-400" }
+            { d: "MAR 03", t: "11:00 AM", c: "PHS 211", title: "Blood & Body Fluids", v: "Annex", bg: "bg-red-50", border: "border-red-500", text: "text-red-700", icon: "fa-tint" },
+            { d: "MAR 04", t: "11:00 AM", c: "MBC 211", title: "General Biochemistry", v: "Annex", bg: "bg-blue-50", border: "border-blue-500", text: "text-blue-700", icon: "fa-dna" },
+            { d: "MAR 05", t: "08:00 AM", c: "ANA 211", title: "Gross Anatomy", v: "Annex", bg: "bg-emerald-50", border: "border-emerald-500", text: "text-emerald-700", icon: "fa-bone" },
+            { d: "MAR 09", t: "08:00 AM", c: "PHS 212", title: "Excitable Tissues", v: "Annex", bg: "bg-amber-50", border: "border-amber-500", text: "text-amber-700", icon: "fa-bolt" },
+            { d: "MAR 12", t: "08:00 AM", c: "PHS 213", title: "Cell Physiology", v: "Annex", bg: "bg-purple-50", border: "border-purple-500", text: "text-purple-700", icon: "fa-microchip" },
+            { d: "MAR 13", t: "08:00 AM", c: "PHS 214", title: "Lab Physiology", v: "Annex", bg: "bg-pink-50", border: "border-pink-500", text: "text-pink-700", icon: "fa-flask" },
+            { d: "MAR 20", t: "08:00 AM", c: "ANA 213", title: "Embryology", v: "Annex", bg: "bg-cyan-50", border: "border-cyan-500", text: "text-cyan-700", icon: "fa-baby" },
+            { d: "TBD", t: "Unspecified", c: "GST 212", title: "Philosophy & Logic", v: "Main Campus", bg: "bg-slate-100", border: "border-slate-500", text: "text-slate-700", icon: "fa-brain" }
         ];
 
-        const timetableContainer = document.getElementById('dashboard-timetable');
+        const timetableContainer = document.getElementById('vertical-timetable');
         exams.forEach(ex => {
-            const card = document.createElement('div');
-            card.className = `exam-card p-5 rounded-2xl border-t-4 ${ex.color} text-white shadow-lg relative group overflow-hidden`;
+            const item = document.createElement('div');
+            item.className = "flex flex-col md:flex-row gap-4 md:gap-8 items-start md:items-center group hover-card relative";
             
-            // Hover glow effect
-            card.innerHTML = `
-                <div class="absolute top-0 right-0 -mr-4 -mt-4 w-20 h-20 bg-white opacity-5 rounded-full blur-xl group-hover:opacity-10 transition-opacity"></div>
-                <div class="flex justify-between items-start mb-4">
-                    <div>
-                        <h4 class="font-black text-2xl ${ex.glow}">${ex.c}</h4>
-                        <p class="text-xs text-slate-400 font-mono mt-1"><i class="far fa-clock"></i> ${ex.t}</p>
+            item.innerHTML = `
+                <div class="hidden md:flex flex-col items-center min-w-[80px]">
+                    <span class="text-xs font-bold text-slate-400 mb-1">${ex.d}</span>
+                    <div class="h-4 w-4 rounded-full ${ex.bg} border-4 ${ex.border} z-10 shadow-sm group-hover:scale-125 transition-transform"></div>
+                </div>
+
+                <div class="flex-1 w-full ${ex.bg} border-l-4 ${ex.border} rounded-r-2xl rounded-l-md p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-sm border border-slate-100">
+                    <div class="flex items-center gap-4">
+                        <div class="h-10 w-10 rounded-full bg-white flex items-center justify-center shadow-sm ${ex.text}">
+                            <i class="fas ${ex.icon}"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2 mb-0.5">
+                                <span class="md:hidden text-[10px] font-bold text-slate-500 uppercase">${ex.d}</span>
+                                <span class="text-[10px] font-mono text-slate-500 bg-white px-1.5 py-0.5 rounded shadow-sm border border-slate-100"><i class="far fa-clock"></i> ${ex.t}</span>
+                            </div>
+                            <h4 class="font-extrabold text-lg text-slate-800 leading-none">${ex.c}</h4>
+                            <p class="text-xs font-semibold ${ex.text} mt-1">${ex.title}</p>
+                        </div>
                     </div>
-                    <div class="text-right">
-                        <span class="bg-slate-800 text-slate-300 text-[10px] font-bold px-2 py-1 rounded">${ex.d}</span>
+                    
+                    <div class="w-full sm:w-auto flex flex-row sm:flex-col items-center sm:items-end justify-between gap-3 sm:gap-2">
+                        <span class="text-xs font-medium text-slate-500 flex items-center gap-1"><i class="fas fa-map-marker-alt opacity-50"></i> ${ex.v}</span>
+                        <button onclick="window.location.href='cbt.html?course=${encodeURIComponent(ex.c)}&title=${encodeURIComponent(ex.title)}'" class="bg-slate-900 hover:bg-slate-800 text-white text-[10px] uppercase tracking-widest font-bold px-4 py-2 rounded-lg transition-all shadow-md flex items-center gap-2">
+                            Drill Now <i class="fas fa-arrow-right"></i>
+                        </button>
                     </div>
                 </div>
-                <div class="flex items-center gap-2 text-sm text-slate-300 mb-6">
-                    <i class="fas fa-map-marker-alt opacity-50"></i> ${ex.v}
-                </div>
-                <button onclick="window.location.href='cbt.html?course=${encodeURIComponent(ex.c)}'" class="w-full bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold py-3 rounded-xl transition-colors border border-slate-600 flex justify-center items-center gap-2">
-                    Start Assessment <i class="fas fa-arrow-right"></i>
-                </button>
             `;
-            timetableContainer.appendChild(card);
+            timetableContainer.appendChild(item);
         });
     </script>
 </body>
-    </html>
+                </html>
